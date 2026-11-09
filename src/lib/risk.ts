@@ -38,7 +38,7 @@ export async function calculateRisk(flightId: string, tx: Prisma.TransactionClie
 
   // 2. Weather (Wi): weather service stores a normalized 0–1 severity index.
   const weatherIndex = flight.weather[0]?.severityIndex ?? 0;
-  const Wi = Math.min(10, Math.max(0, weatherIndex * 10));
+  const Wi = Math.min(10, Math.max(0, weatherIndex > 1 ? weatherIndex : weatherIndex * 10));
 
   // 3. Mechanical/checklist (Md): equipment severity and checklist penalty
   // are both represented on the same 0–10 scale.
