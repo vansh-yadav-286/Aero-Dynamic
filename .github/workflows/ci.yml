@@ -2,7 +2,7 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "fix/authentication-rbac" ]
   pull_request:
     branches: [ "main" ]
 
@@ -16,18 +16,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-        
+
     - name: Install dependencies
       run: npm ci
-      
+
     - name: Run Linter
       run: npm run lint
-      
+
+    - name: Run Unit Tests
+      run: npm test
+
     - name: Build Project
       run: npm run build
