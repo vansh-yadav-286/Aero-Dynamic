@@ -139,8 +139,8 @@ Before you begin, ensure you have the following installed:
 Then clone your fork locally:
 
 ```bash
-git clone https://github.com/<your-username>/Aero Dynamic.git
-cd Aero Dynamic
+git clone https://github.com/<your-username>/Aero-Dynamic.git
+cd Aero-Dynamic
 ```
 
 ### 2. Install Dependencies
