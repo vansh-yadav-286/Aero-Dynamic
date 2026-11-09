@@ -42,18 +42,65 @@ describe('calculateRisk Engine', () => {
 
     const result = await calculateRisk('flight-1', mockTx);
 
-    // Fs = (8 + 6) / 2 = 7.0
-    // Wi = 0.8
-    // Md = 0.7 (from eq logic, but groundEquipment is mocked as []) => Md = 0 (no checklists)
-    // Actually, WEIGHTS are: w1: 0.3, w2: 0.4, w3: 0.3
-    // Rc = (0.3 * 7.0) + (0.4 * 0.8) + (0.3 * 0) = 2.1 + 0.32 + 0 = 2.42
-    
-    // Total is calculated directly in calculateRisk as totalScore = w1*Fs + w2*Wi + w3*Md
-    // So total = 2.42
-    
-    expect(result.calc.totalScore).toBeCloseTo(2.42, 2);
+    // Fs = 7.0, Wi = 8.0 (0.8 x 10), Md = 0.0
+    // Rc = (0.3 x 7.0) + (0.4 x 8.0) + (0.3 x 0) = 5.3
+
+    expect(result.calc.totalScore).toBeCloseTo(5.3, 2);
+    expect(result.calc.weatherFactor).toBe(8.0);
+    expect(result.isCritical).toBe(false);
+    expect(result.blockingReason).toBe('');
+  });
+
+  test('blocks a flight when its weighted score reaches the 7.5 threshold', async () => {
+    const mockTx = {
+      flights: {
+        findUnique: vi.fn().mockResolvedValue({
+          id: 'flight-high-risk',
+          crewUsers: [{ shiftLogs: [{ fatigueIndex: 10 }] }],
+          weather: [{ severityIndex: 1.0 }],
+          incidents: [],
+          checklists: []
+        })
+      },
+      groundEquipment: {
+        findMany: vi.fn().mockResolvedValue([{ status: 'CRITICAL' }])
+      },
+      riskCalculations: {
+        upsert: vi.fn().mockImplementation((args: any) => Promise.resolve(args.create))
+      }
+    } as unknown as Prisma.TransactionClient;
+
+    const result = await calculateRisk('flight-high-risk', mockTx);
+
+    expect(result.calc.totalScore).toBeCloseTo(10, 2);
     expect(result.isCritical).toBe(true);
     expect(result.blockingReason).toBe('Critical overall risk score.');
+  });
+
+  test('uses a 10-point checklist penalty and blocks incomplete mandatory items', async () => {
+    const mockTx = {
+      flights: {
+        findUnique: vi.fn().mockResolvedValue({
+          id: 'flight-checklist',
+          crewUsers: [],
+          weather: [],
+          incidents: [],
+          checklists: [{ items: [{ isMandatory: true, isComplete: false }] }]
+        })
+      },
+      groundEquipment: {
+        findMany: vi.fn().mockResolvedValue([])
+      },
+      riskCalculations: {
+        upsert: vi.fn().mockImplementation((args: any) => Promise.resolve(args.create))
+      }
+    } as unknown as Prisma.TransactionClient;
+
+    const result = await calculateRisk('flight-checklist', mockTx);
+
+    expect(result.calc.mechFactor).toBe(10);
+    expect(result.isCritical).toBe(true);
+    expect(result.blockingReason).toBe('Mandatory checklist items incomplete.');
   });
 
   test('handles zero crew correctly without NaN', async () => {
