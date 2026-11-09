@@ -24,7 +24,7 @@ describe('calculateRisk Engine', () => {
             { shiftLogs: [{ fatigueIndex: 6 }] }
           ],
           weather: [
-            { severityIndex: 0.8 }
+            { severityIndex: 0.5 }
           ],
           incidents: [
             { severity: 'HIGH', resolved: false }
@@ -33,7 +33,7 @@ describe('calculateRisk Engine', () => {
         })
       },
       groundEquipment: {
-        findMany: vi.fn().mockResolvedValue([])
+        findMany: vi.fn().mockResolvedValue([{ status: 'MEDIUM' }])
       },
       riskCalculations: {
         upsert: vi.fn().mockImplementation((args: any) => Promise.resolve(args.create))
@@ -42,11 +42,11 @@ describe('calculateRisk Engine', () => {
 
     const result = await calculateRisk('flight-1', mockTx);
 
-    // Fs = 7.0, Wi = 8.0 (0.8 x 10), Md = 0.0
-    // Rc = (0.3 x 7.0) + (0.4 x 8.0) + (0.3 x 0) = 5.3
+    // Fs = 7.0, Wi = 5.0, Md = 4.0
+    // Rc = (0.3 x 7.0) + (0.4 x 5.0) + (0.3 x 4.0) = 5.3
 
     expect(result.calc.totalScore).toBeCloseTo(5.3, 2);
-    expect(result.calc.weatherFactor).toBe(8.0);
+    expect(result.calc.weatherFactor).toBe(5.0);
     expect(result.isCritical).toBe(false);
     expect(result.blockingReason).toBe('');
   });
