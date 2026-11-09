@@ -57,7 +57,6 @@ describe("fetchWeatherSeverity", () => {
   });
 
   test("does not substitute an unrelated default location when geocoding fails", async () => {
-    vi.doMock("../../src/lib/data/airports", () => ({ globalAirports: [] }));
     mockedFindAirport.mockResolvedValue({ weatherStationId: null });
     const fetchMock = vi.fn().mockResolvedValue(new Response("[]", {
       status: 200,
