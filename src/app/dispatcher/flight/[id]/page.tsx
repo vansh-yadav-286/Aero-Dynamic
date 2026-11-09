@@ -142,8 +142,10 @@ export default async function FlightDetails({ params }: { params: Promise<{ id: 
               <input 
                 type="text" 
                 name="justification" 
-                placeholder="Override Justification..." 
-                required 
+                placeholder="Override justification (20+ characters)..." 
+                minLength={20}
+                maxLength={1000}
+                required
                 className="px-3 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl outline-none" 
               />
               <button 
@@ -208,7 +210,7 @@ export default async function FlightDetails({ params }: { params: Promise<{ id: 
           </div>
 
           <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-400 leading-relaxed">
-            Automatic gate threshold: Risk score &lt; 5.0 allows dispatch clearance; &ge; 7.5 enforces mandatory dispatch block.
+            Automatic dispatch gate: block at or above the configured threshold ({threshold.toFixed(2)}/10). Scores at or above 5.0 are elevated and should be reviewed.
           </div>
         </section>
 
