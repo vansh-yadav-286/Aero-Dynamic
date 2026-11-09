@@ -164,6 +164,7 @@ Or create it manually with the following variables:
 ```env
 # ─── Database ────────────────────────────────────────
 DATABASE_URL="postgresql://<user>:<password>@localhost:5432/aero-dynamic?schema=public"
+DIRECT_DATABASE_URL="postgresql://<user>:<password>@localhost:5432/aero-dynamic?schema=public"
 
 # ─── NextAuth ────────────────────────────────────────
 NEXTAUTH_SECRET="your-random-secret-string-here"
@@ -172,6 +173,13 @@ NEXTAUTH_URL="http://localhost:3000"
 # ─── External APIs ───────────────────────────────────
 OPENWEATHER_API_KEY="your-openweathermap-api-key"
 OPENAI_API_KEY="your-openai-api-key"
+GEMINI_API_KEY="your-gemini-api-key"
+
+# ─── Optional aviation integrations ──────────────────
+AVIATION_EDGE_API_KEY="your-aviation-edge-api-key"
+OPENSKY_CLIENT_ID="your-opensky-client-id"
+OPENSKY_CLIENT_SECRET="your-opensky-client-secret"
+NEXT_PUBLIC_MAPBOX_TOKEN="your-mapbox-token"
 
 # ─── Cron Protection ────────────────────────────────
 CRON_SECRET="your-cron-secret-string"
@@ -179,19 +187,24 @@ CRON_SECRET="your-cron-secret-string"
 
 | Variable | Required | Description |
 |---|---|---|
-| `DATABASE_URL` | ✅ | PostgreSQL connection string |
-| `NEXTAUTH_SECRET` | ✅ | Random string for JWT signing ([generate one](https://generate-secret.vercel.app/32)) |
+| `DATABASE_URL` | ✅ | PostgreSQL application connection string |
+| `DIRECT_DATABASE_URL` | ✅ | Direct PostgreSQL connection used by Prisma tooling and migrations |
+| `NEXTAUTH_SECRET` | ✅ | Random string for JWT signing; use a unique secret in every environment |
 | `NEXTAUTH_URL` | ✅ | Your app's base URL (`http://localhost:3000` for local dev) |
 | `OPENWEATHER_API_KEY` | ✅ | Free API key from [OpenWeatherMap](https://openweathermap.org/api) |
-| `OPENAI_API_KEY` | ⚠️ | Required only for AI safety draft generation |
-| `CRON_SECRET` | ✅ | Bearer token to protect the weather cron endpoint |
+| `OPENAI_API_KEY` | ⚠️ | Optional; used for AI safety draft generation |
+| `GEMINI_API_KEY` | ⚠️ | Optional fallback used by the alternate LLM integration |
+| `CRON_SECRET` | ✅ | Bearer token protecting the weather cron endpoint |
+| `AVIATION_EDGE_API_KEY` | ⚠️ | Optional live flight validation integration |
+| `OPENSKY_CLIENT_ID` / `OPENSKY_CLIENT_SECRET` | ⚠️ | Optional OpenSky API credentials |
+| `NEXT_PUBLIC_MAPBOX_TOKEN` | ⚠️ | Optional browser map tiles; this token is public by design |
 
 ### 4. Database Setup
 
 **Create the PostgreSQL database:**
 
 ```bash
-createdb aero Dynamic
+createdb "aero-dynamic"
 ```
 
 **Generate the Prisma client and push the schema to your database:**
@@ -201,7 +214,7 @@ npx prisma generate
 npx prisma db push
 ```
 
-> **Note:** `prisma db push` is used for development. For production migrations, use `npx prisma migrate dev` to create a migration history.
+> **Note:** `prisma db push` is intended for local development. Create reviewed migrations with `npx prisma migrate dev`; apply committed migrations in production with `npx prisma migrate deploy`.
 
 **Seed initial data (optional):**
 
@@ -215,7 +228,7 @@ If no seed file exists yet, you can manually insert a test user via Prisma Studi
 npx prisma studio
 ```
 
-This opens a browser UI at `http://localhost:5555` where you can create users with different roles (`GROUND_CREW_LEAD`, `FLIGHT_DISPATCHER`, `OPERATIONS_DIRECTOR`).
+This opens a browser UI at `http://localhost:5555`. Create the first account through the public registration page (new public accounts receive only the `GROUND_CREW_LEAD` role), then promote the initial trusted administrator to `OPERATIONS_DIRECTOR` in Prisma Studio. After that, use the Director Admin screen to assign `FLIGHT_DISPATCHER` and other roles. Do not enter a plain-text password directly into the database; passwords must be stored using the application's password-hashing helper.
 
 ### 5. Run the Dev Server
 
