@@ -21,13 +21,11 @@ export async function approveDispatch(flightId: string) {
       update: {},
     });
 
-    const approval = await tx.dispatchApprovals.upsert({
+    return tx.dispatchApprovals.upsert({
       where: { planId: plan.id },
       create: { planId: plan.id, dispatcherId: session.user.id },
       update: { dispatcherId: session.user.id },
     });
-
-    return approval;
   });
 
   eventBus.emit('dispatch_update', {
@@ -35,12 +33,7 @@ export async function approveDispatch(flightId: string) {
     flightId: parsed.flightId,
     timestamp: new Date().toISOString(),
   });
-  eventBus.emit('dispatch_update', {
-    type: 'MANUAL_OVERRIDE',
-    flightId: parsed.flightId,
-    justification: parsed.justification,
-    timestamp: new Date().toISOString(),
-  });
+
   revalidatePath(`/dispatcher/flight/${parsed.flightId}`);
   revalidatePath('/dispatcher/dashboard');
   return result;
@@ -80,6 +73,13 @@ export async function overrideDispatch(flightId: string, justification: string) 
     });
 
     return override;
+  });
+
+  eventBus.emit('dispatch_update', {
+    type: 'MANUAL_OVERRIDE',
+    flightId: parsed.flightId,
+    justification: parsed.justification,
+    timestamp: new Date().toISOString(),
   });
 
   revalidatePath(`/dispatcher/flight/${parsed.flightId}`);
