@@ -34,8 +34,10 @@ export async function verifyPassword(
 
   if (
     prefix === SCRYPT_PREFIX &&
-    /^[a-f0-9]{32}$/i.test(salt || "") &&
-    /^[a-f0-9]{128}$/i.test(hash || "")
+    typeof salt === "string" &&
+    typeof hash === "string" &&
+    /^[a-f0-9]{32}$/i.test(salt) &&
+    /^[a-f0-9]{128}$/i.test(hash)
   ) {
     const expected = Buffer.from(hash, "hex");
     const actual = await deriveKey(password, salt);
