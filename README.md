@@ -61,7 +61,7 @@ Aero Dynamic is a production-oriented aviation safety and risk intelligence web 
 - **Flight Dispatch Management** — Schedule, approve, and track flight dispatch operations with multi-gate safety enforcement.
 - **Risk Calculation Engine** — Weighted risk scoring based on crew fatigue, weather severity, equipment status, and checklist compliance.
 - **Ground Operations Dashboard** — Mobile-first interface for ground crew to complete pre-flight checklists and log shift fatigue.
-- **Real-Time Alerts (SSE)** — Server-Sent Events powered by a Node EventEmitter for live dispatch status updates.
+- **Real-Time Alerts (SSE)** — Server-Sent Events powered by a Node EventEmitter for live dispatch status updates. The EventEmitter is process-local; multi-instance Vercel deployments still need a shared pub/sub service before cross-instance delivery can be relied on.
 - **Weather Ingestion** — Automated weather data collection from OpenWeatherMap via Vercel Cron jobs.
 - **AI Safety Drafts** — LLM-powered draft safety briefings (clearly marked as drafts, never authoritative).
 - **Immutable Audit Ledger** — Every mutation is logged with user ID, action, resource, old/new state, timestamp, and IP address.
@@ -214,7 +214,15 @@ npx prisma generate
 npx prisma db push
 ```
 
-> **Note:** `prisma db push` is intended for local development. Create reviewed migrations with `npx prisma migrate dev`; apply committed migrations in production with `npx prisma migrate deploy`.
+> **Note:** `prisma db push` is intended for local development. Create and commit a baseline migration with `npx prisma migrate dev --name init` before using `npx prisma migrate deploy` for a fresh production database.
+
+**Enable append-only audit protection after the database schema exists:**
+
+```bash
+psql "$DIRECT_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/audit-ledger-append-only.sql
+```
+
+This installs a PostgreSQL trigger that rejects updates, deletes and truncates on `AuditLedger`. Run it once for each database after creating the Prisma schema. Keep the application database role from altering triggers or changing table ownership.
 
 **Seed initial data (optional):**
 
@@ -288,7 +296,7 @@ Create or verify the `vercel.json` file in the project root:
 }
 ```
 
-This runs the weather ingestion cron every 15 minutes. The endpoint is protected by the `CRON_SECRET` bearer token — Vercel automatically sends the `Authorization: Bearer <CRON_SECRET>` header for cron invocations.
+This runs the weather ingestion cron every 15 minutes. The endpoint is protected by the `CRON_SECRET` bearer token — Vercel sends the `Authorization: Bearer <CRON_SECRET>` header for cron invocations. Set `OPENWEATHER_API_KEY` in the Vercel project environment. The cron reports per-flight failures and does not substitute weather from an unrelated fallback location.
 
 ### 5. Deploy
 
