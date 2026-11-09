@@ -105,11 +105,16 @@ function calculateWeatherSeverity(data: OpenWeatherResponse): number {
 
   if (conditionCode >= 200 && conditionCode < 300) conditionFactor = 0.95;
   else if (conditionCode === 511) conditionFactor = 0.95;
-  else if (conditionCode >= 500 && conditionCode < 600) {
-    conditionFactor = conditionCode >= 502 || conditionCode >= 522 ? 0.9 : 0.65;
-  } else if (conditionCode >= 600 && conditionCode < 700) {
+  else if (conditionCode === 762 || conditionCode === 781) conditionFactor = 0.95;
+  else if ((conditionCode >= 502 && conditionCode <= 504) || (conditionCode >= 522 && conditionCode <= 531)) {
+    conditionFactor = 0.9;
+  } else if ((conditionCode >= 520 && conditionCode <= 521) || (conditionCode >= 600 && conditionCode <= 622)) {
     conditionFactor = 0.8;
-  } else if ([711, 721, 731, 741, 751, 761, 762, 771, 781].includes(conditionCode)) {
+  } else if (conditionCode >= 500 && conditionCode <= 501) {
+    conditionFactor = 0.65;
+  } else if (conditionCode >= 300 && conditionCode <= 321) {
+    conditionFactor = 0.45;
+  } else if ([711, 721, 731, 741, 751, 761, 771].includes(conditionCode)) {
     conditionFactor = 0.7;
   }
 
