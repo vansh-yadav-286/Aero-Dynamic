@@ -138,7 +138,7 @@ export default function ProfileDropdown({ session }: { session: any }) {
       {isOpen && (
         <div className="absolute right-0 mt-2 w-72 rounded-xl border border-slate-800 bg-slate-900 shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
           <div className="px-4 py-4 border-b border-slate-800/80">
-            <p className="text-xs text-slate-400 font-medium">Active AeroFlow Profile</p>
+            <p className="text-xs text-slate-400 font-medium">Active Aero Dynamic Profile</p>
             <p className="text-sm font-semibold text-slate-100 truncate mt-0.5 font-mono">
               {profile.email}
             </p>

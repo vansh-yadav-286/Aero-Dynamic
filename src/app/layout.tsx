@@ -10,7 +10,7 @@ import { PageTransition } from '@/components/animations/page-transition';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "AeroFlow | Aviation Safety & Risk Intelligence",
+  title: "Aero Dynamic | Aviation Safety & Risk Intelligence",
   description: "Production-grade aviation safety and risk intelligence platform.",
 };
 
