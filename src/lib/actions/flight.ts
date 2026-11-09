@@ -6,80 +6,101 @@ import { transitionFlight } from '../flight-lifecycle';
 import { FlightStatus } from '@prisma/client';
 import { eventBus } from '../events';
 import { revalidatePath } from 'next/cache';
+import { DispatchApprovalSchema, ManualOverrideSchema } from '../validations';
 
 export async function approveDispatch(flightId: string) {
   const session = await requireRole(['FLIGHT_DISPATCHER', 'OPERATIONS_DIRECTOR']);
-  
+  const parsed = DispatchApprovalSchema.parse({ flightId });
+
   const result = await db.$transaction(async (tx) => {
-    // Enforce transition to Cleared (READY) which checks risk thresholds
-    await transitionFlight(flightId, FlightStatus.READY, session.user.id, { tx });
+    await transitionFlight(parsed.flightId, FlightStatus.READY, session.user.id, { tx });
 
-    let plan = await tx.dispatchPlans.findUnique({ where: { flightId } });
-    if (!plan) plan = await tx.dispatchPlans.create({ data: { flightId } });
-
-    const approval = await tx.dispatchApprovals.create({ 
-      data: { planId: plan.id, dispatcherId: session.user.id } 
+    const plan = await tx.dispatchPlans.upsert({
+      where: { flightId: parsed.flightId },
+      create: { flightId: parsed.flightId },
+      update: {},
     });
-    
-    eventBus.emit('dispatch_update', { type: 'DISPATCH_APPROVED', flightId, timestamp: new Date().toISOString() });
-    
+
+    const approval = await tx.dispatchApprovals.upsert({
+      where: { planId: plan.id },
+      create: { planId: plan.id, dispatcherId: session.user.id },
+      update: { dispatcherId: session.user.id },
+    });
+
+    eventBus.emit('dispatch_update', {
+      type: 'DISPATCH_APPROVED',
+      flightId: parsed.flightId,
+      timestamp: new Date().toISOString(),
+    });
+
     return approval;
   });
 
-  revalidatePath(`/dispatcher/flight/${flightId}`);
+  revalidatePath(`/dispatcher/flight/${parsed.flightId}`);
   revalidatePath('/dispatcher/dashboard');
   return result;
 }
 
 export async function overrideDispatch(flightId: string, justification: string) {
   const session = await requireRole(['OPERATIONS_DIRECTOR']);
-  
+  const parsed = ManualOverrideSchema.parse({
+    flightId,
+    justification: justification.trim(),
+  });
+
   const result = await db.$transaction(async (tx) => {
-    // Enforce transition to Cleared (READY) with override enabled to bypass risk check
-    await transitionFlight(flightId, FlightStatus.READY, session.user.id, { isOverride: true, tx });
-    
+    await transitionFlight(parsed.flightId, FlightStatus.READY, session.user.id, {
+      isOverride: true,
+      tx,
+    });
+
     const override = await tx.manualOverrides.create({
       data: {
-        flightId,
+        flightId: parsed.flightId,
         userId: session.user.id,
-        justification,
+        justification: parsed.justification,
       }
     });
 
-    let plan = await tx.dispatchPlans.findUnique({ where: { flightId } });
-    if (!plan) plan = await tx.dispatchPlans.create({ data: { flightId } });
-
-    await tx.dispatchApprovals.create({ 
-      data: { planId: plan.id, dispatcherId: session.user.id } 
+    const plan = await tx.dispatchPlans.upsert({
+      where: { flightId: parsed.flightId },
+      create: { flightId: parsed.flightId },
+      update: {},
     });
 
-    eventBus.emit('dispatch_update', { 
-      type: 'MANUAL_OVERRIDE', 
-      flightId, 
-      justification, 
-      timestamp: new Date().toISOString() 
+    await tx.dispatchApprovals.upsert({
+      where: { planId: plan.id },
+      create: { planId: plan.id, dispatcherId: session.user.id },
+      update: { dispatcherId: session.user.id },
     });
-    
+
+    eventBus.emit('dispatch_update', {
+      type: 'MANUAL_OVERRIDE',
+      flightId: parsed.flightId,
+      justification: parsed.justification,
+      timestamp: new Date().toISOString(),
+    });
+
     return override;
   });
 
-  revalidatePath(`/dispatcher/flight/${flightId}`);
+  revalidatePath(`/dispatcher/flight/${parsed.flightId}`);
   revalidatePath('/dispatcher/dashboard');
   return result;
 }
 
 export async function approveDispatchFormAction(formData: FormData) {
-  const flightId = formData.get('flightId') as string;
-  if (flightId) {
+  const flightId = formData.get('flightId');
+  if (typeof flightId === 'string' && flightId) {
     await approveDispatch(flightId);
   }
 }
 
 export async function overrideDispatchFormAction(formData: FormData) {
-  const flightId = formData.get('flightId') as string;
-  const justification = (formData.get('justification') as string) || 'Emergency Override';
-  if (flightId) {
+  const flightId = formData.get('flightId');
+  const justification = formData.get('justification');
+
+  if (typeof flightId === 'string' && typeof justification === 'string') {
     await overrideDispatch(flightId, justification);
   }
 }
-
