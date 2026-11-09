@@ -2,50 +2,52 @@
 
 import { db } from "@/lib/db";
 import { Role } from "@prisma/client";
-import crypto from "crypto";
+import { z } from "zod";
+import { hashPassword } from "@/lib/password";
+
+const registrationSchema = z.object({
+  name: z.string().trim().min(2, "Name must contain at least 2 characters.").max(100),
+  email: z.string().trim().email("Enter a valid email address.").max(254).transform((value) => value.toLowerCase()),
+  phone: z.string().trim().max(30).optional(),
+  password: z.string().min(12, "Password must be at least 12 characters.").max(128),
+});
 
 export async function registerUser(formData: FormData) {
-  const name = formData.get('name') as string;
-  const email = formData.get('email') as string;
-  const phone = formData.get('phone') as string;
-  const password = formData.get('password') as string;
-  const role = formData.get('role') as Role;
+  const phoneValue = formData.get("phone");
+  const parsed = registrationSchema.safeParse({
+    name: formData.get("name"),
+    email: formData.get("email"),
+    phone: typeof phoneValue === "string" && phoneValue.trim() ? phoneValue.trim() : undefined,
+    password: formData.get("password"),
+  });
 
-  if (!name || !email || !password || !role) {
-    throw new Error("Missing required fields.");
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message || "Invalid registration details.");
   }
 
-  // Prevent registration of Operations Director
-  if (role === Role.OPERATIONS_DIRECTOR) {
-    throw new Error("OPERATIONS_DIRECTOR accounts cannot be created via public registration.");
-  }
+  const { name, email, phone, password } = parsed.data;
 
-  // Check unique constraints
-  const existingUser = await db.users.findFirst({
-    where: {
-      OR: [
-        { email },
-        { phone: phone || undefined }
-      ]
-    }
+  // Public registration must never let a user grant themselves dispatcher
+  // or director privileges. Directors can assign elevated roles separately.
+  const role = Role.GROUND_CREW_LEAD;
+
+  const existingUser = await db.users.findUnique({
+    where: { email },
+    select: { id: true },
   });
 
   if (existingUser) {
-    throw new Error("A user with this email or phone number already exists.");
+    throw new Error("An account with this email address already exists.");
   }
 
-  // Hash password using native crypto module (SHA-256)
-  const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
-
-  // Create user
   await db.users.create({
     data: {
       name,
       email,
       phone,
-      password: hashedPassword,
-      role
-    }
+      password: await hashPassword(password),
+      role,
+    },
   });
 
   return { success: true };
