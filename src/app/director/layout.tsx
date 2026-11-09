@@ -1,4 +1,5 @@
 import { requireRole } from "@/lib/auth";
+import { Role } from "@prisma/client";
 import { fetchDirectorMasterData } from "@/lib/services/director-data";
 import { DirectorMasterConsole } from "@/components/director/director-master-console";
 
@@ -8,7 +9,7 @@ export default async function DirectorLayout({
   children: React.ReactNode;
 }) {
   // Guard the entire director sub-routes
-  const session = await requireRole(["OPERATIONS_DIRECTOR", "FLIGHT_DISPATCHER", "GROUND_CREW_LEAD"]);
+  const session = await requireRole([Role.OPERATIONS_DIRECTOR]);
 
   const masterData = await fetchDirectorMasterData(session.user.id);
 
