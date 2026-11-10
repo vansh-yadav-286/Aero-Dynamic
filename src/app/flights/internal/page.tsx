@@ -8,7 +8,7 @@ import { getMonitoredFlightIds } from "@/lib/actions/risk-analytics";
 export const dynamic = 'force-dynamic';
 
 export default async function InternalFlightsPage() {
-  await requireRole(['FLIGHT_DISPATCHER', 'OPERATIONS_DIRECTOR', 'GROUND_CREW_LEAD']);
+  await requireRole(['FLIGHT_DISPATCHER', 'OPERATIONS_DIRECTOR']);
 
   const flights = await db.flights.findMany({
     include: { route: true },

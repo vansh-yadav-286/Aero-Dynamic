@@ -52,7 +52,7 @@ export async function generateAiBriefing(flightId: string) {
 
   // Extract quantitative metrics
   const riskScore = flight.risk?.totalScore ?? 0.0;
-  const weatherSev = flight.weather[0]?.severityIndex ?? 0.0;
+  const weatherSev = Math.min(10, Math.max(0, (flight.weather[0]?.severityIndex ?? 0.0) * 10));
   const crewShiftLogs = flight.crewUsers.flatMap((u: any) => u.shiftLogs || []).filter(Boolean);
   const avgFatigue = crewShiftLogs.length > 0 
     ? (crewShiftLogs.reduce((acc: number, log: any) => acc + log.fatigueIndex, 0) / crewShiftLogs.length).toFixed(1)
@@ -73,7 +73,7 @@ export async function generateAiBriefing(flightId: string) {
   const holdingRisk = riskScore >= 7.5 ? 'CRITICAL (30+ min expected holds at destination)' : riskScore >= 5.0 ? 'MODERATE (10-15 min enroute sequencing)' : 'LOW (Direct routing approved)';
 
   const promptContext = `
-Aviation Safety & Dispatch Context:
+Aviation Safety & Dispatch Context (decision-support only; never authorize departure):
 - Flight: ${flight.flightNumber}
 - Route: ${flight.route.originId} to ${flight.route.destinationId} (Base Route Risk: ${flight.route.baseRisk})
 - Current Risk Coefficient: ${riskScore.toFixed(2)} / 10.0
@@ -84,7 +84,7 @@ Aviation Safety & Dispatch Context:
 - Mandatory Incomplete Checklists: ${flight.checklists.flatMap((c: any) => c.items || []).filter((i: any) => i.isMandatory && !i.isComplete).length} items.
 
 Requirements:
-Generate an authoritative, structured aviation safety mitigation briefing for the Flight Dispatcher and Flight Crew. The briefing must contain the following 5 structured sections with clear actionable guidance:
+Generate a non-authoritative draft aviation safety mitigation briefing for the Flight Dispatcher and Flight Crew. The briefing must contain the following 5 structured sections with clear actionable guidance:
 1. OPERATIONAL THREAT SUMMARY & RISK PROFILE
 2. SUGGESTED FUEL BUFFERS & CONTINGENCY (Include specific contingency fuel in KG and holding minutes)
 3. ALTITUDE & ROUTING ADJUSTMENTS (Include specific Flight Level recommendations and convective/turbulence avoidance)

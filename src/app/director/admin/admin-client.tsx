@@ -91,8 +91,8 @@ export default function AdminClient({
   const handleThresholdSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = parseFloat(threshold);
-    if (isNaN(parsed) || parsed < 0 || parsed > 1) {
-      setMessage({ text: "Risk threshold must be a number between 0.0 and 1.0", type: "error" });
+    if (isNaN(parsed) || parsed < 0 || parsed > 10) {
+      setMessage({ text: "Risk threshold must be a number between 0 and 10", type: "error" });
       return;
     }
 
@@ -258,13 +258,13 @@ export default function AdminClient({
                 <div className="flex gap-2">
                   <input
                     type="number"
-                    step="0.05"
+                    step="0.25"
                     min="0"
                     max="1"
                     value={threshold}
                     onChange={(e) => setThreshold(e.target.value)}
                     className="flex-1 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500/50"
-                    placeholder="e.g. 0.75"
+                    placeholder="e.g. 7.5"
                     required
                     disabled={isPending}
                   />
@@ -278,7 +278,7 @@ export default function AdminClient({
                   </button>
                 </div>
                 <p className="text-xs text-white/40 leading-normal pt-1">
-                  Alert banners and flight locks trigger when a flight's risk coefficient meets or exceeds this value. Currently: {(parseFloat(threshold) * 10).toFixed(1)}/10.
+                  Alert banners and flight locks trigger when a flight's risk score meets or exceeds this value on a 0–10 scale.
                 </p>
               </div>
             </form>
