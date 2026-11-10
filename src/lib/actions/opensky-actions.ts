@@ -1,12 +1,14 @@
 'use server';
 
 import { db } from "../db";
+import { requireRole } from "../auth";
 import { openSky } from "../services/opensky";
 import { FlightStatus } from "@prisma/client";
 import { updateMonitoredFlights, getMonitoredFlightIds } from "./risk-analytics";
 import { getAirportByIcao, getAirportByIata, globalAirports } from "../data/airports";
 
 export async function getFlightsByAirport(airportIcao: string) {
+  await requireRole(['FLIGHT_DISPATCHER', 'OPERATIONS_DIRECTOR']);
   if (!airportIcao) return [];
   try {
     const airport = getAirportByIcao(airportIcao);
@@ -42,6 +44,7 @@ export async function getFlightsByAirport(airportIcao: string) {
 }
 
 export async function searchLiveFlight(query: string) {
+  await requireRole(['FLIGHT_DISPATCHER', 'OPERATIONS_DIRECTOR']);
   if (!query) return null;
   const q = query.trim().toUpperCase();
   try {
@@ -86,7 +89,10 @@ export async function enrollFlight(
   estDepartureAirport: string = 'UNK',
   estArrivalAirport: string = 'UNK'
 ) {
-  if (!callsign || callsign === 'UNKNOWN') {
+  await requireRole(['FLIGHT_DISPATCHER', 'OPERATIONS_DIRECTOR']);
+
+  callsign = callsign.trim().toUpperCase();
+  if (!callsign || callsign === 'UNKNOWN' || callsign.length > 12) {
     return { success: false, error: 'Valid callsign required to enroll flight' };
   }
   
@@ -137,6 +143,7 @@ export async function enrollFlight(
 import { fetchWeatherSeverity } from "../services/weather";
 
 export async function getWeatherForAirport(airportCode: string) {
+  await requireRole(['FLIGHT_DISPATCHER', 'OPERATIONS_DIRECTOR']);
   try {
     const res = await fetchWeatherSeverity(airportCode);
     return { success: true, conditions: res.rawConditions, severity: res.severityIndex };
