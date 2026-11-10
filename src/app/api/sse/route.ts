@@ -15,16 +15,26 @@ export async function GET(req: Request) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 
+  let cleanup = () => {};
+
   const stream = new ReadableStream({
     start(controller) {
       let closed = false;
+
+      const closeStream = () => {
+        if (closed) return;
+        closed = true;
+        clearInterval(keepAlive);
+        eventBus.off('dispatch_update', listener);
+        eventBus.off('alert_broadcast', listener);
+      };
 
       const send = (payload: unknown) => {
         if (closed) return;
         try {
           controller.enqueue(`data: ${JSON.stringify(payload)}\n\n`);
         } catch {
-          cleanup();
+          closeStream();
         }
       };
 
@@ -33,24 +43,17 @@ export async function GET(req: Request) {
         send({ type: 'PING', timestamp: new Date().toISOString() });
       }, 30000);
 
-      const cleanup = () => {
-        if (closed) return;
-        closed = true;
-        clearInterval(keepAlive);
-        eventBus.off('dispatch_update', listener);
-        eventBus.off('alert_broadcast', listener);
-      };
-
+      cleanup = closeStream;
       eventBus.on('dispatch_update', listener);
       eventBus.on('alert_broadcast', listener);
 
       send({ type: 'CONNECTED', timestamp: new Date().toISOString() });
+      req.signal.addEventListener('abort', closeStream, { once: true });
 
-      req.signal.addEventListener('abort', cleanup, { once: true });
+      if (req.signal.aborted) closeStream();
     },
     cancel() {
-      // The request abort event also handles disconnects; this handler is
-      // here for runtimes that cancel the stream before the request signal.
+      cleanup();
     },
   });
 
