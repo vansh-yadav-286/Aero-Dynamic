@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { Severity } from "@prisma/client";
 import { calculateRisk } from "@/lib/risk";
+import { requireRole } from "@/lib/auth";
 
 // Keep director analytics on the exact same risk calculator used by dispatch gates.
 async function computeFlightRisk(flightId: string) {
@@ -138,14 +139,31 @@ export async function getCombinedRiskFactors() {
 }
 
 export async function updateMonitoredFlights(flightIds: string[]) {
+  await requireRole(['FLIGHT_DISPATCHER', 'OPERATIONS_DIRECTOR']);
+
+  if (!Array.isArray(flightIds) || flightIds.length > 500 || flightIds.some(id => typeof id !== 'string' || !id.trim())) {
+    throw new Error('Invalid monitored-flight list.');
+  }
+
+  const uniqueIds = [...new Set(flightIds)];
+  const existingCount = await db.flights.count({
+    where: { id: { in: uniqueIds } },
+  });
+
+  if (existingCount !== uniqueIds.length) {
+    throw new Error('One or more monitored flights do not exist.');
+  }
+
   await db.systemConfig.upsert({
     where: { key: 'monitored_flight_ids' },
-    update: { value: JSON.stringify(flightIds) },
-    create: { key: 'monitored_flight_ids', value: JSON.stringify(flightIds) }
+    update: { value: JSON.stringify(uniqueIds) },
+    create: { key: 'monitored_flight_ids', value: JSON.stringify(uniqueIds) }
   });
 }
 
 export async function getMonitoredFlightIds(): Promise<string[] | null> {
+  await requireRole(['FLIGHT_DISPATCHER', 'OPERATIONS_DIRECTOR']);
+
   const config = await db.systemConfig.findUnique({ where: { key: 'monitored_flight_ids' } });
   if (config) {
     try { return JSON.parse(config.value) as string[]; } catch {}
