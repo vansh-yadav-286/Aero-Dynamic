@@ -2,9 +2,9 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "main", "fix/authentication-rbac", "fix/risk-dispatch-consistency", "fix/weather-deployment-audit" ]
+    branches: [ "main", "fix/authentication-rbac", "fix/risk-dispatch-consistency", "fix/weather-deployment-audit", "fix/server-action-authorization" ]
   pull_request:
-    branches: [ "main", "fix/authentication-rbac", "fix/risk-dispatch-consistency" ]
+    branches: [ "main", "fix/authentication-rbac", "fix/risk-dispatch-consistency", "fix/weather-deployment-audit" ]
 
 jobs:
   build:
