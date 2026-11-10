@@ -1,11 +1,14 @@
 'use server';
 
 import { db } from "../db";
+import { requireRole } from "../auth";
 import { openSky } from "../services/opensky";
 import { FlightStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 export async function syncLiveToInternal() {
+  await requireRole(['FLIGHT_DISPATCHER', 'OPERATIONS_DIRECTOR']);
+
   try {
     // 1. Fetch live flights from OpenSky
     const states = await openSky.getStates();
