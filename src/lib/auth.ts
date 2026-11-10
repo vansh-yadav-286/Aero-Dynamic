@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { Role } from "@prisma/client";
 import { db } from "./db";
 import { cache } from "react";
+import { redirect } from "next/navigation";
 
 export const authOptions: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET || "aeroflow-super-secret-key-production-development-2026",
@@ -81,18 +82,11 @@ export type Session = {
 export const getSession = cache(async (): Promise<Session | null> => {
   try {
     const session = await getServerSession(authOptions);
-    if (session) return session as unknown as Session;
+    return session ? (session as unknown as Session) : null;
   } catch (e) {
     console.warn("getSession error:", e);
+    return null;
   }
-  return {
-    user: {
-      id: 'user-johndoe-id',
-      email: 'johndoe@gmail.com',
-      name: 'John Doe',
-      role: Role.OPERATIONS_DIRECTOR
-    }
-  };
 });
 
 export function getDashboardForRole(role: Role): string {
@@ -108,17 +102,17 @@ export function getDashboardForRole(role: Role): string {
   }
 }
 
-export async function requireRole(allowedRoles: Role[]) {
-  let session = await getSession();
-  if (!session) {
-    session = {
-      user: {
-        id: 'user-johndoe-id',
-        email: 'johndoe@gmail.com',
-        name: 'John Doe',
-        role: Role.OPERATIONS_DIRECTOR
-      }
-    };
+export async function requireRole(allowedRoles: Role[]): Promise<Session> {
+  const session = await getSession();
+
+  if (!session?.user) {
+    redirect('/login');
   }
+
+  // Deny by default: an empty allow-list authorizes no one.
+  if (allowedRoles.length === 0 || !allowedRoles.includes(session.user.role)) {
+    redirect('/unauthorized');
+  }
+
   return session;
 }
