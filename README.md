@@ -139,8 +139,8 @@ Before you begin, ensure you have the following installed:
 Then clone your fork locally:
 
 ```bash
-git clone https://github.com/<your-username>/Aero Dynamic.git
-cd Aero Dynamic
+git clone https://github.com/<your-username>/Aero-Dynamic.git
+cd Aero-Dynamic
 ```
 
 ### 2. Install Dependencies
@@ -335,7 +335,7 @@ Insert a `Flights` record with status `SCHEDULED`, linked to a `RouteProfiles` e
 
 ### Step 6 — Manual Override
 
-1. Log in as `director@aero Dynamic.test`.
+1. Log in as `director@aerodynamic.test`.
 2. Navigate to the blocked flight's dossier.
 3. Enter a justification and click **Force Override**.
 4. Verify the flight status changes to `READY`.
