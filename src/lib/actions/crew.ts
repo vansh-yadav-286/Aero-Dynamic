@@ -226,6 +226,14 @@ export async function updateShiftLog(
 }
 
 export async function getUserShiftLogs(userId: string) {
+  const session = await requireRole(['GROUND_CREW_LEAD', 'OPERATIONS_DIRECTOR']);
+
+  // Crew members may only view their own fatigue records. Directors can
+  // review another crew member's logs for safety oversight.
+  if (userId !== session.user.id && session.user.role !== 'OPERATIONS_DIRECTOR') {
+    throw new Error('You can only view your own shift logs.');
+  }
+
   try {
     return await db.shiftLogs.findMany({
       where: { userId },
