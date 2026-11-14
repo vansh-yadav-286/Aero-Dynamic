@@ -5,9 +5,9 @@ const prisma = new PrismaClient()
 async function main() {
   // Create 3 users for testing
   const users = [
-    { email: 'dispatcher@aeroflow.test', name: 'Test Dispatcher', role: 'FLIGHT_DISPATCHER' },
-    { email: 'crew@aeroflow.test', name: 'Test Crew', role: 'GROUND_CREW_LEAD' },
-    { email: 'director@aeroflow.test', name: 'Test Director', role: 'OPERATIONS_DIRECTOR' }
+    { email: 'dispatcher@aerodynamic.test', name: 'Test Dispatcher', role: 'FLIGHT_DISPATCHER' },
+    { email: 'crew@aerodynamic.test', name: 'Test Crew', role: 'GROUND_CREW_LEAD' },
+    { email: 'director@aerodynamic.test', name: 'Test Director', role: 'OPERATIONS_DIRECTOR' }
   ]
 
   console.log('Seeding users...')

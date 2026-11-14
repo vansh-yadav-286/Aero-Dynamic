@@ -88,7 +88,7 @@ export const mockIncidents = [
     resolved: false,
     resolutionNotes: null,
     createdAt: new Date(Date.now() - 3600000),
-    reporter: { id: 'usr-1', name: 'Ground Lead Sam', email: 'sam@aeroflow.com', role: 'GROUND_CREW_LEAD' },
+    reporter: { id: 'usr-1', name: 'Ground Lead Sam', email: 'sam@aerodynamic.com', role: 'GROUND_CREW_LEAD' },
     flight: { id: 'mock-uuid-0', flightNumber: 'AF-100', status: 'BOARDING' }
   },
   {
@@ -101,7 +101,7 @@ export const mockIncidents = [
     resolved: true,
     resolutionNotes: 'Absorbent pad applied and area cleaned. Hydraulic line re-torqued.',
     createdAt: new Date(Date.now() - 7200000),
-    reporter: { id: 'usr-2', name: 'Alex Vance', email: 'alex@aeroflow.com', role: 'FLIGHT_DISPATCHER' },
+    reporter: { id: 'usr-2', name: 'Alex Vance', email: 'alex@aerodynamic.com', role: 'FLIGHT_DISPATCHER' },
     flight: { id: 'mock-uuid-1', flightNumber: 'AF-101', status: 'READY' }
   }
 ];

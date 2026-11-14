@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { Role } from "@prisma/client";
-import crypto from "crypto";
+import bcrypt from "bcryptjs";
 
 export async function registerUser(formData: FormData) {
   const name = formData.get('name') as string;
@@ -16,8 +16,11 @@ export async function registerUser(formData: FormData) {
   }
 
   // Prevent registration of Operations Director
-  if (role === Role.OPERATIONS_DIRECTOR) {
-    throw new Error("OPERATIONS_DIRECTOR accounts cannot be created via public registration.");
+  if (
+    role !== Role.FLIGHT_DISPATCHER &&
+    role !== Role.GROUND_CREW_LEAD
+  ) {
+    throw new Error("Invalid registration role.");
   }
 
   // Check unique constraints
@@ -35,7 +38,7 @@ export async function registerUser(formData: FormData) {
   }
 
   // Hash password using native crypto module (SHA-256)
-  const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+  const hashedPassword = await bcrypt.hash(password, 12);
 
   // Create user
   await db.users.create({

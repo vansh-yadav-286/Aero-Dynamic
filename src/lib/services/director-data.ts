@@ -11,8 +11,8 @@ import { normalizeDashboardLayout } from "@/app/director/analytics/layout-utils"
 
 const DEFAULT_MOCK_USERS = [
   { id: 'usr-1', name: 'John Doe (Director)', email: 'johndoe@gmail.com', role: Role.OPERATIONS_DIRECTOR },
-  { id: 'usr-2', name: 'Alex Vance (Dispatcher)', email: 'dispatcher@aeroflow.com', role: Role.FLIGHT_DISPATCHER },
-  { id: 'usr-3', name: 'Sam Miller (Crew Lead)', email: 'crew@aeroflow.com', role: Role.GROUND_CREW_LEAD },
+  { id: 'usr-2', name: 'Alex Vance (Dispatcher)', email: 'dispatcher@aerodynamic.com', role: Role.FLIGHT_DISPATCHER },
+  { id: 'usr-3', name: 'Sam Miller (Crew Lead)', email: 'crew@aerodynamic.com', role: Role.GROUND_CREW_LEAD },
 ];
 
 export async function fetchDirectorMasterData(userId: string) {

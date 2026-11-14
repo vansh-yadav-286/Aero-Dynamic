@@ -189,7 +189,7 @@ export async function GET(req: NextRequest) {
 
     // Build auth headers using OAuth2 Bearer token
     const headers: Record<string, string> = {
-      'User-Agent': 'AeroFlow-Telemetry-App/1.0',
+      'User-Agent': 'Aero-Dynamic-Telemetry-App/1.0',
       'Accept': 'application/json',
     };
 

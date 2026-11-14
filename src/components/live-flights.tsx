@@ -202,7 +202,7 @@ export function LiveFlights() {
     } catch (serverError: any) {
       // Strategy 2: Direct browser-to-OpenSky fetch (uses user's residential IP, bypasses cloud blocks)
       try {
-        console.log('[AeroFlow] Server API unavailable, fetching directly from OpenSky via browser...');
+        console.log('[Aero-Dynamic] Server API unavailable, fetching directly from OpenSky via browser...');
         const directUrl = 'https://opensky-network.org/api/states/all?lamin=24.396308&lomin=-125.0&lamax=49.384358&lomax=-66.93457';
         
         const directRes = await fetch(directUrl, {
@@ -227,11 +227,11 @@ export function LiveFlights() {
         return;
         
       } catch (directError: any) {
-        console.warn('[AeroFlow] Direct browser fetch also failed:', directError.message);
+        console.warn('[Aero-Dynamic] Direct browser fetch also failed:', directError.message);
       }
       
       // Strategy 3: Fall back to mock data as last resort
-      console.warn('[AeroFlow] All strategies failed, using mock data');
+      console.warn('[Aero-Dynamic] All strategies failed, using mock data');
       setError('OpenSky API Limit Reached: Mock simulations.');
       const mock = generateMockData();
       setFlights(mock);
