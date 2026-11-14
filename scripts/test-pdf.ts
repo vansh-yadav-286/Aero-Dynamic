@@ -1,4 +1,4 @@
-import { generateFlightDossier } from './src/lib/pdf-service';
+import { generateFlightDossier } from '../src/lib/pdf-service';
 
 async function main() {
   try {

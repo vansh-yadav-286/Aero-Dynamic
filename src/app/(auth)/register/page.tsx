@@ -29,7 +29,7 @@ export default function RegisterPage() {
   return (
     <div className="max-w-md mx-auto mt-20 p-8 glass-card rounded-2xl border border-white/10">
       <h1 className="text-3xl font-bold text-white mb-2">Create Account</h1>
-      <p className="text-white/60 text-sm mb-6">Register for access to AeroFlow.</p>
+      <p className="text-white/60 text-sm mb-6">Register for access to Aero Dynamic.</p>
       
       {error && (
         <div className="p-3 mb-4 rounded border bg-red-500/15 text-red-300 border-red-500/30 text-sm">

@@ -21,7 +21,7 @@ export default async function FlightBoardPage() {
             <div>
               <div className="flex items-center gap-3">
                 <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white font-mono">
-                  AEROFLOW TELEMETRY RADAR
+                  AERO DYNAMIC TELEMETRY RADAR
                 </h1>
               </div>
               <p className="text-xs text-slate-400 mt-1 font-mono flex items-center gap-2">

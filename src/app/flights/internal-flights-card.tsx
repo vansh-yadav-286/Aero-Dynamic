@@ -261,7 +261,7 @@ export function InternalFlightsCard({
               </span>
             </div>
             <p className="text-[10px] text-slate-500 font-mono mt-0.5">
-              AeroFlow · Corporate Fleet Surveillance System v2.4
+              Aero Dynamic · Corporate Fleet Surveillance System v2.4
             </p>
           </div>
         </div>
@@ -423,7 +423,7 @@ export function InternalFlightsCard({
                                 <p className="text-sm font-extrabold font-mono text-white tracking-wider">
                                   {flight.flightNumber}
                                 </p>
-                                <p className="text-[9px] font-mono text-slate-600 uppercase">AeroFlow Corp</p>
+                                <p className="text-[9px] font-mono text-slate-600 uppercase">Aero Dynamic Corp</p>
                               </div>
                             </div>
                           </td>

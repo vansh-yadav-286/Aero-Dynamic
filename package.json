@@ -1,5 +1,5 @@
 {
-  "name": "aeroflow",
+  "name": "Aero Dynamic",
   "version": "0.1.0",
   "private": true,
   "engines": {
@@ -10,7 +10,9 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -23,6 +25,7 @@
     "@turf/destination": "^7.4.0",
     "@types/three": "^0.185.1",
     "axios": "^1.18.1",
+    "bcryptjs": "^3.0.3",
     "framer-motion": "^12.42.2",
     "lucide-react": "^1.24.0",
     "mapbox-gl": "^3.27.0",

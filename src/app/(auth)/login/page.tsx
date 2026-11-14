@@ -79,7 +79,7 @@ export default function LoginPage() {
               <div className="p-3 bg-blue-500 rounded-xl shadow-lg shadow-blue-500/30">
                 <PlaneTakeoff size={32} />
               </div>
-              <h1 className="text-3xl font-black tracking-tight">AeroFlow</h1>
+              <h1 className="text-3xl font-black tracking-tight">Aero Dynamic</h1>
             </div>
             
             <h2 className="text-4xl font-bold text-white leading-tight mb-6">
@@ -115,7 +115,7 @@ export default function LoginPage() {
               <div className="p-2 bg-blue-500 rounded-lg shadow-lg">
                 <PlaneTakeoff size={24} />
               </div>
-              <h1 className="text-2xl font-black tracking-tight">AeroFlow</h1>
+              <h1 className="text-2xl font-black tracking-tight">Aero Dynamic</h1>
             </div>
 
             <h3 className="text-2xl font-bold text-white mb-2">Welcome Back</h3>

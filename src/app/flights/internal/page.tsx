@@ -44,7 +44,7 @@ export default async function InternalFlightsPage() {
             <span>{dateStr}</span>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-indigo-400/60">AeroFlow IFFMS v2.4.1</span>
+            <span className="text-indigo-400/60">Aero Dynamic IFFMS v2.4.1</span>
           </div>
         </div>
 
@@ -103,7 +103,7 @@ export default async function InternalFlightsPage() {
 
         {/* ─── Footer note ─── */}
         <p className="text-center text-[10px] font-mono text-slate-700 pb-4">
-          AeroFlow Internal Fleet Monitoring System (IFFMS) · Data sourced from OpenSky Network · For authorized personnel only
+          Aero Dynamic Internal Fleet Monitoring System (IFFMS) · Data sourced from OpenSky Network · For authorized personnel only
         </p>
       </div>
     </div>

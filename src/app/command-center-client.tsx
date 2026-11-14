@@ -106,7 +106,7 @@ export function CommandCenterClient({ stats }: { stats: { flightsCount: number, 
           </motion.div>
 
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white leading-tight">
-            AeroFlow{" "}
+            Aerodynamic{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-400">
               Command Center
             </span>

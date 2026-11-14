@@ -130,7 +130,7 @@ export async function generateFlightDossier(flightId: string) {
   };
 
   // Document Header Title
-  drawLine('AeroFlow Safety Dossier', 22, rgb(0.05, 0.15, 0.35));
+  drawLine('Aero Dynamic Safety Dossier', 22, rgb(0.05, 0.15, 0.35));
   y -= sectionGap;
 
   // Flight Info Section

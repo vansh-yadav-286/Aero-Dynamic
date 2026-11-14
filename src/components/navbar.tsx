@@ -37,7 +37,7 @@ export function TopNav({ session }: TopNavProps) {
           className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-cyan-300 to-emerald-400 bg-clip-text text-transparent flex items-center gap-2 font-mono"
         >
           <Plane className="w-5 h-5 text-cyan-400" />
-          <span>AeroFlow</span>
+          <span>Aero Dynamic</span>
         </Link>
 
         {pathname !== '/' && (

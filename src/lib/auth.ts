@@ -4,9 +4,11 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { Role } from "@prisma/client";
 import { db } from "./db";
 import { cache } from "react";
+import { redirect } from "next/navigation";
+import bcrypt from "bcryptjs";
 
 export const authOptions: AuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET || "aeroflow-super-secret-key-production-development-2026",
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -15,20 +17,32 @@ export const authOptions: AuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email) return null;
-        try {
-          const user = await db.users.findUnique({ where: { email: credentials.email } });
-          if (user) {
-            return { id: user.id, email: user.email, name: user.name, role: user.role };
-          }
-        } catch (e) {
-          console.warn("authorize db query error, using fallback user:", e);
+        if (!credentials?.email || !credentials?.password) {
+          return null;
         }
+
+        const user = await db.users.findUnique({
+          where: { email: credentials.email.trim().toLowerCase() },
+        });
+
+        if (!user?.password) {
+          return null;
+        }
+
+        const passwordValid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
+
+        if (!passwordValid) {
+          return null;
+        }
+
         return {
-          id: 'user-johndoe-id',
-          email: credentials.email,
-          name: 'John Doe',
-          role: Role.OPERATIONS_DIRECTOR
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
         };
       }
     })
@@ -81,18 +95,11 @@ export type Session = {
 export const getSession = cache(async (): Promise<Session | null> => {
   try {
     const session = await getServerSession(authOptions);
-    if (session) return session as unknown as Session;
+    return session ? (session as unknown as Session) : null;
   } catch (e) {
     console.warn("getSession error:", e);
+    return null;
   }
-  return {
-    user: {
-      id: 'user-johndoe-id',
-      email: 'johndoe@gmail.com',
-      name: 'John Doe',
-      role: Role.OPERATIONS_DIRECTOR
-    }
-  };
 });
 
 export function getDashboardForRole(role: Role): string {
@@ -108,17 +115,17 @@ export function getDashboardForRole(role: Role): string {
   }
 }
 
-export async function requireRole(allowedRoles: Role[]) {
-  let session = await getSession();
-  if (!session) {
-    session = {
-      user: {
-        id: 'user-johndoe-id',
-        email: 'johndoe@gmail.com',
-        name: 'John Doe',
-        role: Role.OPERATIONS_DIRECTOR
-      }
-    };
+export async function requireRole(allowedRoles: Role[]): Promise<Session> {
+  const session = await getSession();
+
+  if (!session?.user) {
+    redirect('/login');
   }
+
+  // Deny by default: an empty allow-list authorizes no one.
+  if (allowedRoles.length === 0 || !allowedRoles.includes(session.user.role)) {
+    redirect('/unauthorized');
+  }
+
   return session;
 }

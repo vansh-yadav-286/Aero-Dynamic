@@ -53,7 +53,7 @@ async function getOAuth2Token() {
 }
 
 app.get('/', (req, res) => {
-  res.send('AeroFlow OpenSky Proxy is running. (OAuth2 enabled)');
+  res.send('Aero-Dynamic OpenSky Proxy is running. (OAuth2 enabled)');
 });
 
 app.get('/api/live', async (req, res) => {
@@ -71,7 +71,7 @@ app.get('/api/live', async (req, res) => {
     }
 
     let headers = {
-      'User-Agent': 'AeroFlow-Proxy/1.0',
+      'User-Agent': 'Aero-Dynamic-Proxy/1.0',
       'Accept': 'application/json',
     };
 
