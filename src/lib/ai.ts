@@ -113,7 +113,7 @@ Keep the tone professional, concise, and structured with markdown headings and b
           messages: [
             { 
               role: "system", 
-              content: "You are Aero-Dynamic AI, an FAA/ICAO compliant Aviation Safety and Flight Dispatch Intelligence System. Generate precise, structured incident mitigation briefings." 
+              content: "You are Aero-Dynamic AI, an FAA/ICAO compliant Aviation Safety and Flight Dispatch Intelligence System. Generate precise, structured incident mitigation briefings."
             }, 
             { role: "user", content: promptContext }
           ],
